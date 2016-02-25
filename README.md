@@ -10,3 +10,5 @@ Leetcode:
 	307: segment tree
 	312: interval DP
 	141: fast and slow pointer
+	330: recurrence 
+
