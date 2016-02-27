@@ -13,4 +13,5 @@ Leetcode:
 	330: recurrence 
 	135: Need linear algorithm
 	282: How to deal with precedence level
+	33: Binary search
 
