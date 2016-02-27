@@ -12,4 +12,5 @@ Leetcode:
 	141: fast and slow pointer
 	330: recurrence 
 	135: Need linear algorithm
+	282: How to deal with precedence level
 
