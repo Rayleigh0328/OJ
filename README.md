@@ -3,6 +3,7 @@ Src code for online judges
 
 Leetcode:
 	41: 
+	65: different cases
 	222: left sub-tree just full case
 	166: Special case, negative case, boundary
 	98: Compare the whole sub-tree. Overflow problem.
