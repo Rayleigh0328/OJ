@@ -2,6 +2,7 @@
 Src code for online judges
 
 Leetcode:
+	240:
 	41: 
 	65: different cases
 	222: left sub-tree just full case
