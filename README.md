@@ -2,6 +2,7 @@
 Src code for online judges
 
 Leetcode:
+	332: Eular path, dfs, output is the reverse order of finishing time
 	336:
 	335:
 	240:
