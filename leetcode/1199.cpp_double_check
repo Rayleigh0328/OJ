@@ -1,0 +1,58 @@
+class Solution {
+    const int INF = 1000000007;
+    int n;
+    vector<vector<int>> f;
+    
+public:
+    int minBuildTime(vector<int>& t, int s) {
+        n = t.size();
+        sort(t.begin(), t.end(), greater<int>());
+        int pow = 0;
+        while ((1 << pow) < n) ++pow;
+        if (pow * s < t[n-1] && t[0] - t[n-1] < s) {
+            cout << "special case" << endl;
+            return t[0] + s*pow;
+        }
+#ifdef TEST
+    printf("split time: %d\n", s);
+    printf("building time:");
+    for (auto x : t) printf("%d ", x);
+    cout << endl;
+#endif
+        f = vector<vector<int>>(n+1, vector<int>(n+2, INF));
+        // f[pos][w], use w woker to finsh jobs starting from pos(inclsive)
+        for (int start_pos = n-1; start_pos >=0; --start_pos){
+#ifdef TEST
+            printf("start pos: %d\n", start_pos);
+#endif
+            // enough worker, no split needed
+            f[start_pos][n-start_pos] = t[start_pos];
+            f[start_pos][n-start_pos + 1] = t[start_pos];
+            // not enough worker, split needed
+            for (int total_worker = n-start_pos-1; total_worker >= 1; --total_worker){
+#ifdef TEST
+                printf("total worker: %d\n", total_worker);
+#endif
+                // all worker split 
+                f[start_pos][total_worker] = s + (2*total_worker > n-start_pos?f[start_pos][n-start_pos]:f[start_pos][2*total_worker]);
+                // at least 1 woker work
+                //for (int split_worker = min(total_worker-1, (n-start_pos+1)/2); split_worker>=1;--split_worker){
+                for (int split_worker = 1; split_worker <=min(total_worker-1, (n-start_pos+1)/2); ++split_worker){
+#ifdef TEST
+                    printf("split worker: %d\n", split_worker);
+#endif
+                    f[start_pos][total_worker] = 
+                        min(f[start_pos][total_worker], max(t[start_pos], s + f[start_pos + (total_worker - split_worker)][2*split_worker]));
+                    if (t[start_pos] > 2*s + f[start_pos + (total_worker - split_worker)][2*split_worker]) break;
+                }
+            }
+#ifdef TEST
+            printf("start pos: %d:\n", start_pos);
+            for (int i=1; i<n-start_pos+2;++i)
+                printf("%d ", f[start_pos][i]);
+            cout << endl;
+#endif
+        }
+        return f[0][1];
+    }
+};
