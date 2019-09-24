@@ -1,74 +1,73 @@
+import java.util.ArrayList;
+import java.util.Collections;
+
 class Solution {
-    private static final int INF = 1000000;
 
-    public int maximumSum(int[] arr) {
-        if (allNegative(arr)) return getMax(arr);
-        return solve(arr, 0, arr.length);
-    }
+    private static final int INF = 1000000000;
 
-    private boolean allNegative(int[] arr){
-        for (int i=0; i<arr.length; ++i)
-            if (arr[i] > 0) return false;
-        return true;
-    }
+    public int makeArrayIncreasing(int[] arr1, int[] arr2) {
+        ArrayList<Integer> a = new ArrayList<>();
+        for (int i=0; i<arr1.length;++i) a.add(arr1[i]);
 
-    private int getMax(int[] arr){
-        int result = -INF;
-        for (int i=0;i<arr.length;++i)
-            if (result < arr[i]) result = arr[i];
-        return result;
-    }
+        ArrayList<Integer> b = new ArrayList<>();
+        for (int i=0; i<arr2.length;++i) b.add(arr2[i]);
+        Collections.sort(b);
 
-    private int solve(int[] arr, int left, int right) {
-        if (left == right) return -INF;
-        if (left == right - 1) return arr[left];
-        int mid = (left + right) / 2;
-        int result = Math.max(solve(arr, left, mid), solve(arr, mid, right));
+        // init f
+        int[][][] f = new int[a.size()][b.size()][2];
+        for (int i=0; i<a.size(); ++i)
+            for (int j=0; j<b.size(); ++j)
+                for (int k = 0; k<2; ++k)
+                    f[i][j][k] = INF;
 
-        // left without remove
-        int best1 = -INF;
-        int currentSum = 0;
-        for (int i=mid-1; i>=left; --i){
-            currentSum += arr[i];
-            if (currentSum > best1) best1 = currentSum;
+        // boundary
+        // i=0 cases
+        for (int j = 0; j<b.size();++j) f[0][j][0] = 0;
+        for (int j = 0; j<b.size();++j) f[0][j][1] = 1;
+
+        // j = 0 cases
+        // j = 0 and end with b[0]
+        if (b.get(0) > a.get(0)) f[1][0][1] = 1;
+        for (int i = 2; i<a.size();++i){
+            if (a.get(i-1) > a.get(i-2) && b.get(0) > a.get(i-1)) f[i][0][1] = 1;
+            else break;
         }
-        // left with remove
-        int best2=-INF;
-        int currentMin=arr[mid-1];
-        currentSum=0;
-        for (int i=mid-2; i>=left; --i){
-            currentSum += arr[i];
-            if (arr[i] < currentMin) {
-                currentSum += currentMin;
-                currentSum -= arr[i];
-                currentMin = arr[i];
+        // j = 0 and end with a[i]
+        for (int i=1; i<a.size();++i) {
+            if (a.get(i) > a.get(i-1)) f[i][0][0] = min(f[i][0][0], f[i-1][0][0]);
+            if (a.get(i) > b.get(0)) f[i][0][0] = min(f[i][0][0], f[i-1][0][1]);
+        }
+
+        for (int i=1; i<a.size();++i)
+            for (int j=1; j<b.size(); ++j){
+                f[i][j][0] = min(f[i][j][0], f[i][j-1][0]);
+                if (a.get(i) > a.get(i-1)) {
+                    f[i][j][0] = min(f[i][j][0], f[i-1][j][0]);
+                    f[i][j][0] = min(f[i][j][0], f[i-1][j-1][0]);
+                }
+
+                if (a.get(i) > b.get(j-1)) {
+                    f[i][j][0] = min(f[i][j][0], f[i-1][j-1][1]);
+                }
+
+                if (a.get(i) > b.get(j))
+                    f[i][j][0] = min(f[i][j][0], f[i-1][j][1]);
+
+                f[i][j][1] = min(f[i][j][1], f[i][j-1][1]);
+                if (b.get(j) > a.get(i-1)) f[i][j][1] = min(f[i][j][1], f[i-1][j-1][0] + 1);
+                if (b.get(j) > b.get(j-1)) f[i][j][1] = min(f[i][j][1], f[i-1][j-1][1] + 1);
             }
-            if (currentSum > best2) best2 = currentSum;
-        }
-        // right without remove
-        int best3 = -INF;
-        currentSum = 0;
-        for (int i=mid; i<right; ++i){
-            currentSum += arr[i];
-            if (currentSum > best3) best3 = currentSum;
-        }
-        // right with remove
-        int best4 = -INF;
-        currentMin = arr[mid];
-        currentSum = 0;
-        for (int i=mid+1; i<right;++i){
-            currentSum += arr[i];
-             if (arr[i] < currentMin) {
-                currentSum += currentMin;
-                currentSum -= arr[i];
-                currentMin = arr[i];
-             }
-             if (currentSum > best4) best4 = currentSum;
-        }
-        result = Math.max(result, best1 + best3);
-        result = Math.max(result, best1 + best4); 
-        result = Math.max(result, best2 + best3);
-        return result;
+
+        int result = INF;
+        for (int j = 0; j<b.size();++j)
+            result = min(result, f[a.size() - 1][j][0], f[a.size()-1][j][1]);
+        return (result==INF?-1:result);
     }
 
+    private int min(int... args){
+        int result = INF;
+        for (int i : args)
+            result = Math.min(result, i);
+        return result;
+    }
 }
