@@ -22,7 +22,6 @@ public:
         if (root == NULL) return vector<int>();
         
         stack<trav_state> st;
-        while (!st.empty()) st.pop();
         
         vector<int>ans;
         ans.clear();
