@@ -1,1 +1,1 @@
-/Users/jingyun.bian/Documents/git/OJ/leetcode/1_hash.cpp
+../../leetcode/1.cpp
