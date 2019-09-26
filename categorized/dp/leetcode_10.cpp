@@ -1,0 +1,1 @@
+../../leetcode/10.cpp
