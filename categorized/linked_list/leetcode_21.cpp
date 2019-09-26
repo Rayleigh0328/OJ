@@ -1,0 +1,1 @@
+../../leetcode/21.cpp
