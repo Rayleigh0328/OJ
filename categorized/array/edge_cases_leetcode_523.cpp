@@ -1,0 +1,1 @@
+../../leetcode/523.cpp
