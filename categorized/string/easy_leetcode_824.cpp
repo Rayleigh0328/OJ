@@ -1,0 +1,1 @@
+../../leetcode/824.cpp
