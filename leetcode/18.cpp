@@ -1,74 +1,66 @@
 class Solution {
-private:
-    bool unique(vector<int>& cur_vect, vector<vector<int>>& ans)
-    {
-        for (int i=0;i<ans.size();++i)
-        {
-            if (ans[i].size() != cur_vect.size()) continue;
-            bool pass = false;
-            for (int j=0;j<ans[i].size();++j)
-                if (ans[i][j] != cur_vect[j]) pass = true;
-            if (!pass) return false;
+    
+    void update_result(vector<vector<int>> &result, const vector<int> &left, const vector<vector<int>> &right){
+        
+        for (int j=0;j<right.size();++j){
+            vector<int> c(left);
+            for (auto x : right[j]) c.push_back(x);
+            result.push_back(c);
         }
-        return true;
     }
     
-    int find(int tar, int left, int right,vector<int> &a)
-    {
-        while (left < right)
-        {
-            if (left + 1 == right)
-                if (a[left] == tar) return left;
-                else 
-                    if (a[right] == tar) return right;
-                    else return -1;
-                
-             int mid = (left + right)/2;
-             if (a[mid] == tar) return mid;
-             if (a[mid] < tar) left = mid + 1;
-             else right = mid - 1;
+    vector<vector<int>> k_sum(int k, const vector<int>& a, int start_pos, int target){
+        vector<vector<int>> result;
+        int n = a.size();
+        
+        if (k == 1) {
+            for (int i=start_pos;i<n;++i)
+                if (a[i] == target) {
+                    result.push_back({a[i]});
+                    break;
+                }
+            return result;
         }
-        if (left == right && a[left] == tar) return left;
-        return -1;
-    }
-public:
-    vector<vector<int>> fourSum(vector<int>& a, int target) 
-    {
-        vector<vector<int>> ans;
-        ans.clear();
-        int len = a.size();
-        sort(a.begin(), a.end());
-       
-        for (int i=0; i<len-3; ++i)
-        {
-            // cout << "here" << endl;
-            // cout << "i: " << i << endl << "up: " << a.size() - 3<< endl;
-            if (a[i] + 3*a[i+1] > target) break;
-            else
-            {
-                for (int j=i+1;j<len-2;++j)
-                    if (a[i] + a[j] + 2*a[j+1] > target) break;
-                    else
-                    {
-                        for (int k = j+1; k<len-1;++k)
-                        {
-                            int rest = target - a[i] - a[j] - a[k];
-                            if (rest < a[k+1]) break;
-                            else
-                            {
-                                int last_pos = find(rest, k+1, len-1,a);
-                                //cout << a[i] << " " << a[j] << " " << a[k] << " " << rest << endl;
-                                if (last_pos != -1)
-                                {
-                                    vector<int> cur_vect = {a[i],a[j],a[k],a[last_pos]};
-                                    if (unique(cur_vect, ans))
-                                        ans.push_back(cur_vect);
-                                }
-                            }
-                        }
-                    }
+        
+        if (k == 2){
+            int i = start_pos;
+            int j = n - 1;
+            int sum;
+            while (i < j){
+                sum = a[i] + a[j];
+                if (sum > target) --j;
+                else if (sum < target) ++i;
+                else {
+                    result.push_back({a[i],a[j]});
+                    while (i+1<n && a[i+1]==a[i]) ++i;
+                    while (j-1>=0 && a[j-1] == a[j]) --j;
+                    --j;
+                }
+            }
+            return result;
+        }
+        
+        // k > 2
+        for (int i=start_pos,next; i<n; i=next){
+            next = i+1;
+            while (next < n && a[next] == a[i]) ++next;
+            if (next-i>=k && a[i] * k == target){
+                result.push_back(vector<int>(k, a[i]));
+            }
+            for (int cnt=min(k-1,next-i); cnt>=1; --cnt){
+                update_result(result, vector<int>(cnt, a[i]), k_sum(k-cnt, a, next, target-cnt*a[i]));
             }
         }
-        return ans;
+        return result;
+    } 
+    
+    vector<vector<int>> k_sum(int k, vector<int>& a, int target){
+        sort(a.begin(),a.end());
+        return k_sum(k, a, 0, target);
+    }
+    
+public:
+    vector<vector<int>> fourSum(vector<int>& nums, int target) {
+        return k_sum(4,nums,target);
     }
 };
