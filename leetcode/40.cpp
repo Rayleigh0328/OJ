@@ -1,58 +1,27 @@
 class Solution {
-private:
-    vector<vector<int>> ans;
     
-    bool unique(vector<int>& cur_vect)
-    {
-        for (int i=0;i<ans.size();++i)
-        {
-            if (ans[i].size() != cur_vect.size()) continue;
-            bool pass = false;
-            for (int j=0;j<ans[i].size();++j)
-                if (ans[i][j] != cur_vect[j]) pass = true;
-            if (!pass) return false;
-        }
-        return true;
-    }
-    
-    void solve(int cur_target, vector<int>& cand, int ind, vector<int> cur_vect)
-    {
-        // cout << cur_target << " " << ind << "\t\t";
-        // cout << "vect: ";
-        // for (int i=0;i<cur_vect.size();++i)
-        //     cout << cur_vect[i] << " ";
-        // cout << endl;
-        
-        if (cur_target == 0)
-        {
-            if (unique(cur_vect))
-                ans.push_back(cur_vect);
+    void solve(const vector<int>& a, int pos, int target, vector<int>& current, vector<vector<int>>& result){
+        if (target == 0){
+            result.push_back(current);
             return;
         }
+        if (target < 0 || pos >= a.size()) return;
         
-        if (ind < 0) return;
-        
-        // for (int i=0;i*cand[ind] <= cur_target;++i)
-        // {
-        //     solve(cur_target - i*cand[ind], cand, ind - 1, cur_vect);
-        //     cur_vect.push_back(cand[ind]);
-        // }
-        
-        solve(cur_target, cand, ind-1, cur_vect);
-        if (cur_target - cand[ind] >=0)
-        {
-            cur_vect.push_back(cand[ind]);
-            solve(cur_target-cand[ind], cand, ind-1, cur_vect);
+        int next = pos;
+        while (next < a.size() && a[next] == a[pos]) ++next;
+        for (int i=0;i<=next-pos;++i){
+            for (int j=1;j<=i;++j) current.push_back(a[pos]);
+            solve(a,next,target - i * a[pos], current, result);
+            for (int j=1;j<=i;++j) current.pop_back();
         }
     }
     
 public:
-    vector<vector<int>> combinationSum2(vector<int>& cand, int target) 
-    {
-        ans.clear();
-        sort(cand.rbegin(), cand.rend());
-        solve(target, cand, cand.size()-1, vector<int>());
-        
-        return ans;
+    vector<vector<int>> combinationSum2(vector<int>& a, int target) {
+        sort(a.begin(), a.end(), greater<int>());
+        vector<vector<int>> result;
+        vector<int> current;
+        solve(a,0,target,current,result);
+        return result;
     }
 };
