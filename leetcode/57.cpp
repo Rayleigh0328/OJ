@@ -1,57 +1,35 @@
-/**
- * Definition for an interval.
- * struct Interval {
- *     int start;
- *     int end;
- *     Interval() : start(0), end(0) {}
- *     Interval(int s, int e) : start(s), end(e) {}
- * };
- */
-class Solution 
-{
-private:
-    struct  Interval_comparator
-    {
-        bool operator() (const Interval &a, const Interval& b) const
-        {
-            return a.end < b.end;
-        }
-    };
+bool overlap(const vector<int>& a, const vector<int>& b){
+    if (a[1] < b[0] || b[1] < a[0]) return false;
+    return true;
+}
 
+vector<int> merge(const vector<int>&a, const vector<int>& b){
+    vector<int> result;
+    result.push_back(min(a[0],b[0]));
+    result.push_back(max(a[1],b[1]));
+    return result;
+}
+
+class Solution {
 public:
-    vector<Interval> insert(vector<Interval>& intervals, Interval newInterval) 
-    {
-        int left = newInterval.start;
-        int right = newInterval.end;
-        
-        set<Interval, Interval_comparator> s;
-        s.clear();
-        
-        for (auto element : intervals)
-            s.insert(element);
-        
-        set<Interval, Interval_comparator>::iterator it, it_tmp;
-        it = lower_bound(s.begin(), s.end(), Interval(left,left), Interval_comparator());
-        if (it == s.end() || it->start > right)
-            s.insert(newInterval);
-        else
-        {
-            int l = min(it->start, left);
-            int r;
-            while (it != s.end() && it->start <= right)
-            {
-                r = max(it->end, right);
-                it_tmp = it++;
-                s.erase(it_tmp);
+    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& ni) {
+        vector<vector<int>> result{ni};
+        vector<int> tmp;
+        for (auto &e : intervals){
+            tmp = result.back();
+            if (overlap(tmp, e)){
+                result.pop_back();
+                result.push_back(merge(tmp,e));
             }
-            s.insert(Interval(l,r));
+            else if (tmp[1] < e[0]){
+                result.push_back(e);
+            }
+            else {
+                result.pop_back();
+                result.push_back(e);
+                result.push_back(tmp);
+            }
         }
-        
-        vector<Interval> ans;
-        ans.clear();
-        for (auto element : s)
-            ans.push_back(element);
-        
-        return ans;
+        return result;
     }
 };
