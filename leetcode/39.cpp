@@ -1,33 +1,25 @@
 class Solution {
-private:
-    vector<vector<int>> ans;
     
-    void solve(int cur_target, vector<int>& cand, int ind, vector<int> cur_vect)
-    {
-        //cout << cur_target << " " << ind << endl;
-        
-        if (cur_target == 0)
-        {
-            ans.push_back(cur_vect);
+    void solve(const vector<int>& a, int pos, int target, vector<int>& current, vector<vector<int>>& result){
+        // printf("solve pos %d, target %d\n",pos, target);
+        if (target == 0) {
+            result.push_back(current);
             return;
         }
+        if (target < 0 || pos <0) return;
+        current.push_back(a[pos]);
+        solve(a,pos,target-a[pos], current, result);
+        current.pop_back();
         
-        if (ind < 0) return;
-        
-        for (int i=0;i*cand[ind] <= cur_target;++i)
-        {
-            solve(cur_target - i*cand[ind], cand, ind - 1, cur_vect);
-            cur_vect.push_back(cand[ind]);
-        }
+        solve(a,pos-1, target, current, result);
     }
     
 public:
-    vector<vector<int>> combinationSum(vector<int>& cand, int target) 
-    {
-        ans.clear();
-        sort(cand.rbegin(), cand.rend());
-        solve(target, cand, cand.size()-1, vector<int>());
-        
-        return ans;
+    vector<vector<int>> combinationSum(vector<int>& a, int target) {
+        sort(a.begin(), a.end());
+        vector<vector<int>> result;
+        vector<int> current;
+        solve(a,a.size()-1,target, current, result);
+        return result;
     }
 };
