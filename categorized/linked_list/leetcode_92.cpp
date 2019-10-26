@@ -1,0 +1,1 @@
+../../leetcode/92.cpp
