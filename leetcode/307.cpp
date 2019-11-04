@@ -1,53 +1,69 @@
-class NumArray {
-public:
-    NumArray(vector<int> &nums) {
-        int n = nums.size();
-        len = 1;
-        while (len < n) len = len << 1;
-        
-        a = new int [2*len];
-        for (int i=0;i<2*len;++i)
-            a[i] = 0;
-        
-        for (int i=0;i<n;++i)
-            a[len+i] = nums[i];
-        for (int i=len-1; i>0;--i)
-            a[i] = a[i<<1] + a[i<<1 | 1];
-    }
-
-    void update(int i, int val) {
-        int diff = val - a[len+i];
-        int ad = len+i;
-        while (ad > 0)
-        {
-            a[ad] += diff;
-            ad = ad >> 1;
-        }
-        //for (int i=0;i<2*len;++i) cout << a[i] << " "; cout << endl;
-    }
-
-    int sumRange(int left, int right) {
-        return -get_sum(1,len, left) + get_sum(1,len, right) + a[len+left];
-        
-    }
-private:
-    int* a;
-    int len;
+struct Bit{
+    int n;
+    vector<int> bit;
+    vector<int> a;
     
-    int get_sum(int cur, int len, int k)
-    {
-        
-        if (k == len - 1) 
-            return a[cur];
-        if (k < (len >> 1)) return get_sum(cur<<1, len>>1, k);
-        else
-            return a[cur<<1] + get_sum(cur<<1 | 1, len>>1, k-(len>>1));
+    Bit(){}
+    
+    Bit(const vector<int> &data){
+        n = data.size()+1;
+        a = vector<int>(n);
+        bit = vector<int>(n);
+        bit[0] = a[0] = 0;
+        for (int i=0;i<n-1;++i) bit[i+1] = a[i+1] = data[i];
+        for (int i=1;i<n;++i)
+            if (i + low(i) < n)
+                bit[i + low(i)] += bit[i];
+    }
+    
+    int low(int x){
+        return x & -x;
+    }
+    
+    void update(int index, int delta){
+        // note the index is the index in data
+        int x = index + 1;
+        a[x] += delta;
+        while (x < n){
+            bit[x] += delta;
+            x += low(x);
+        }
+    }
+    
+    int prefix_sum(int x){
+        int ans = 0;
+        while (x > 0){
+            ans += bit[x];
+            x -= low(x);
+        }
+        return ans;
+    }
+    
+    int range_sum_query(int left, int right){
+        // note that here left, right are index in data
+        return prefix_sum(right+1) - prefix_sum(left);
     }
 };
 
+class NumArray {
+    Bit bit;
+public:
+    NumArray(vector<int>& a) {
+        bit = Bit(a);
+    }
+    
+    void update(int i, int val) {
+        bit.update(i,val-bit.a[i+1]);
+    }
+    
+    int sumRange(int i, int j) {
+        return bit.range_sum_query(i,j);
+    }
+};
 
-// Your NumArray object will be instantiated and called as such:
-// NumArray numArray(nums);
-// numArray.sumRange(0, 1);
-// numArray.update(1, 10);
-// numArray.sumRange(1, 2);
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray* obj = new NumArray(nums);
+ * obj->update(i,val);
+ * int param_2 = obj->sumRange(i,j);
+ */
