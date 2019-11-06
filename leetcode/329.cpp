@@ -1,54 +1,44 @@
 class Solution {
-public:
-    struct pos{
-        int x, y, v;
-        pos(int a, int b, int c)
-        {
-            x = a;
-            y = b;
-            v = c;
-        }
-        bool operator<(const pos &other) const
-        {
-            return v<other.v;
-        }
-    };
+    int n,m;
+    vector<vector<int>> a,f;
     
-    int solve(int r, int c, vector<vector<int>>& matrix, int n, int m, int** f)
-    {
-        if (r != 0 && matrix[r-1][c]<matrix[r][c]) f[r][c] = max(f[r][c], f[r-1][c] + 1);
-        if (r != n-1 && matrix[r+1][c]<matrix[r][c]) f[r][c] = max(f[r][c], f[r+1][c] + 1);
-        
-        if (c != 0 && matrix[r][c-1]<matrix[r][c]) f[r][c] = max(f[r][c], f[r][c-1]+1);
-        if (c != m-1 && matrix[r][c+1]<matrix[r][c]) f[r][c] = max(f[r][c], f[r][c+1]+1);
+    vector<int> x_diff{-1,1,0,0};
+    vector<int> y_diff{0,0,-1,1};
+    
+    bool in_board(int x, int y){
+        if (x < 0 || x >= n || y < 0 || y >= m) return false;
+        return true;
     }
     
+    int solve(int x, int y){
+        if (!in_board(x,y)) return 0;
+        if (f[x][y] > 0) return f[x][y];
+        int next_x, next_y;
+        f[x][y] = 1;
+        for (int i=0;i<4;++i){
+            next_x = x + x_diff[i];
+            next_y = y + y_diff[i];
+            if (in_board(next_x, next_y) && a[x][y] > a[next_x][next_y]) 
+                f[x][y] = max(f[x][y], solve(next_x, next_y) + 1);
+        }
+        return f[x][y];
+    }
+    
+public:
     int longestIncreasingPath(vector<vector<int>>& matrix) {
-        if (matrix.empty() || matrix[0].empty()) return 0; 
-        int n = matrix.size();
-        int m = matrix[0].size();
+        n = matrix.size();
+        if (n == 0) return 0;
+        m = matrix[0].size();
+        if (m == 0) return 0;
         
-        vector<pos> a;
-        a.clear();
-        for (int i=0; i<n; ++i)
-            for (int j=0;j<m; ++j)
-                a.push_back(pos(i,j,matrix[i][j]));
-        sort(a.begin(), a.end());
-        
-        int **f = new int* [n];
+        a = matrix;
+        f = vector<vector<int>>(n, vector<int>(m,0));
+        int ans = 1;
         for (int i=0;i<n;++i)
-            f[i] = new int [m];
-        for (int i=0;i<n;++i)
-            for (int j=0;j<m;++j)
-                f[i][j] = 1;
-        
-        for (int i=0;i<a.size();++i)
-            solve(a[i].x, a[i].y,matrix, n, m, f);
-        
-        int ans = 0;
-        for (int i=0;i<n;++i)
-            for (int j=0;j<m;++j)
+            for (int j=0;j<m;++j){
+                solve(i,j);
                 ans = max(ans, f[i][j]);
+            }
         return ans;
     }
 };
