@@ -28,6 +28,7 @@ class Solution {
     
 public:
     vector<vector<int>> levelOrder(Node* root) {
+        if (root == NULL) return {};
         vector<vector<int>> ans;
         for (int i=0;;++i){
             vector<int> row;
