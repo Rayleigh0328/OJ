@@ -1,15 +1,11 @@
 class Solution {
 public:
     int removeElement(vector<int>& a, int val) {
-        int tail = a.size()-1;
-        while (tail >= 0 && a[tail] == val) --tail;
-        for (int i=0;i<tail;++i){
-            if (a[i] == val){
-                a[i] = a[tail];
-                --tail;
-            }
-            while (tail >= 0 && a[tail]==val) -- tail;
+        int p1 = 0, p2 = 0;
+        while (p2 < a.size()){
+            if (a[p2] != val) a[p1++] =a[p2];
+            ++p2;
         }
-        return tail + 1;
+        return p1;
     }
 };
